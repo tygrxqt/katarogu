@@ -43,7 +43,7 @@ export default function AuthPopup() {
 
 	const [loading, setLoading] = React.useState(false);
 
-	const { signIn, register, resetPassword, signInWithOAuth } = useAuth();
+	const { logIn, register } = useAuth();
 
 	const reset = () => {
 		setName("");
@@ -58,10 +58,10 @@ export default function AuthPopup() {
 	const onSignIn = async () => {
 		setLoading(true);
 
-		await signIn(email, password).then((res) => {
-			if (res) {
-				reset();
+		await logIn(email, password).then((res) => {
+			if (res === true) {
 				setOpen(false);
+				reset();
 			} else {
 				setLoading(false);
 			}
@@ -69,24 +69,17 @@ export default function AuthPopup() {
 	};
 
 	const onOAuthSignIn = async (provider: "github" | "google" | "discord") => {
-		setLoading(true);
-
-		await signInWithOAuth(provider).then((res) => {
-			if (res) {
-				reset();
-				setOpen(false);
-			} else {
-				setLoading(false);
-			}
-		});
+		//
 	};
 
 	const onRegister = async () => {
-		await register(name, username, email, password, passwordConfirm).then(
+		setLoading(true);
+
+		await register(name, email, username, password, passwordConfirm).then(
 			(res) => {
-				if (res) {
-					reset();
+				if (res === true) {
 					setOpen(false);
+					reset();
 				} else {
 					setLoading(false);
 				}
@@ -95,10 +88,7 @@ export default function AuthPopup() {
 	};
 
 	const onReset = async () => {
-		await resetPassword(email).then(() => {
-			reset();
-			setOpen(false);
-		});
+		//
 	};
 
 	const changeMode = (mode: string) => {

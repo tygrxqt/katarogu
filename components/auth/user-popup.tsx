@@ -41,7 +41,7 @@ export default function UserPopup() {
 	const [signOutOpen, setSignOutOpen] = useState(false);
 	const isDesktop = useMediaQuery("(min-width: 768px)");
 
-	const { user, signOut, avatar, banner } = useAuth();
+	const { user, logOut, avatar, banner } = useAuth();
 
 	function SignOutConfirmation() {
 		return (
@@ -49,7 +49,7 @@ export default function UserPopup() {
 				<Alert
 					title="Are you sure?"
 					description="You are about to sign out of your account. Any unsaved changes you may have made will be lost."
-					onSubmit={() => signOut()}
+					onSubmit={() => logOut()}
 					onCancel={() => setOpen(!open)}
 					open={signOutOpen}
 					setOpen={setSignOutOpen}
@@ -68,7 +68,9 @@ export default function UserPopup() {
 								<Avatar className="border border-black/10 dark:border dark:border-white/10">
 									<AvatarImage src={avatar} alt="Avatar" aria-label="Avatar" />
 									<AvatarFallback>
-										{(user.username ?? "A").slice(0, 1).toUpperCase()}
+										{(user.user_metadata.username ?? "T")
+											.slice(0, 1)
+											.toUpperCase()}
 									</AvatarFallback>
 								</Avatar>
 							</DropdownMenuTrigger>
@@ -77,7 +79,7 @@ export default function UserPopup() {
 								side="bottom"
 							>
 								<AspectRatio ratio={3 / 1}>
-									{!user.verified && (
+									{typeof user.email_confirmed_at === "undefined" && (
 										<div className="absolute top-0 z-[51] h-[32px] w-full bg-[#EBCB8B] text-black dark:text-black">
 											<div className="flex max-h-[32px] flex-row items-center justify-start gap-2 p-2">
 												<AlertTriangle className="h-4 w-4" />
@@ -103,14 +105,16 @@ export default function UserPopup() {
 											alt="Avatar"
 										/>
 										<AvatarFallback>
-											{(user.username ?? "A").slice(0, 1).toUpperCase()}
+											{(user.user_metadata.username ?? "A")
+												.slice(0, 1)
+												.toUpperCase()}
 										</AvatarFallback>
 									</Avatar>
 									<div className="flex flex-row items-center justify-between">
 										<div className="flex flex-col items-start">
 											<span className="flex flex-row items-center gap-2 font-semibold text-black dark:text-white">
-												{user.name}
-												{user.visibility === "private" && (
+												{user.user_metadata.name}
+												{user.user_metadata.visibility === "private" && (
 													<Tooltip delayDuration={0}>
 														<TooltipTrigger>
 															<Lock size={16} />
@@ -118,7 +122,7 @@ export default function UserPopup() {
 														<TooltipContent>Private</TooltipContent>
 													</Tooltip>
 												)}
-												{user.visibility === "unlisted" && (
+												{user.user_metadata.visibility === "unlisted" && (
 													<Tooltip delayDuration={500}>
 														<TooltipTrigger>
 															<EyeOff size={16} />
@@ -128,7 +132,7 @@ export default function UserPopup() {
 												)}
 											</span>
 											<span className="text-sm font-normal text-neutral-500">
-												({user.username})
+												({user.user_metadata.username})
 											</span>
 										</div>
 										<div className="flex flex-row items-start">
@@ -179,13 +183,15 @@ export default function UserPopup() {
 								<Avatar className="border border-black/10 dark:border dark:border-white/10">
 									<AvatarImage src={avatar} alt="Avatar" aria-label="Avatar" />
 									<AvatarFallback>
-										{(user.username ?? "A").slice(0, 1).toUpperCase()}
+										{(user.user_metadata.username ?? "T")
+											.slice(0, 1)
+											.toUpperCase()}
 									</AvatarFallback>
 								</Avatar>
 							</DrawerTrigger>
 							<DrawerContent className="border-0 p-0" handle={false}>
 								<AspectRatio ratio={2 / 1}>
-									{!user.verified && (
+									{typeof user.email_confirmed_at === "undefined" && (
 										<div className="absolute top-0 z-[51] h-[32px] w-full bg-[#EBCB8B] text-black dark:text-black">
 											<div className="flex max-h-[32px] flex-row items-center justify-start gap-2 p-2">
 												<AlertTriangle className="h-4 w-4" />
@@ -211,14 +217,16 @@ export default function UserPopup() {
 											alt="Avatar"
 										/>
 										<AvatarFallback>
-											{(user.username ?? "A").slice(0, 1).toUpperCase()}
+											{(user.user_metadata.username ?? "T")
+												.slice(0, 1)
+												.toUpperCase()}
 										</AvatarFallback>
 									</Avatar>
 									<div className="flex flex-row items-center justify-between">
 										<div className="flex flex-col items-start">
 											<span className="flex flex-row items-center gap-2 font-semibold text-black dark:text-white">
-												{user.name}
-												{user.visibility === "private" && (
+												{user.user_metadata.name}
+												{user.user_metadata.visibility === "private" && (
 													<Tooltip delayDuration={0}>
 														<TooltipTrigger>
 															<Lock size={16} />
@@ -226,7 +234,7 @@ export default function UserPopup() {
 														<TooltipContent>Private</TooltipContent>
 													</Tooltip>
 												)}
-												{user.visibility === "unlisted" && (
+												{user.user_metadata.visibility === "unlisted" && (
 													<Tooltip delayDuration={500}>
 														<TooltipTrigger>
 															<EyeOff size={16} />
@@ -236,7 +244,7 @@ export default function UserPopup() {
 												)}
 											</span>
 											<span className="text-sm font-normal text-neutral-500">
-												({user.username})
+												({user.user_metadata.username})
 											</span>
 										</div>
 
