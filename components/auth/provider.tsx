@@ -38,6 +38,8 @@ export interface AuthSession {
 
 	uploadBanner: (base64: string) => Promise<void>;
 	removeBanner: () => Promise<void>;
+
+	deleteAccount: () => Promise<boolean>;
 }
 
 export const AuthContext = React.createContext<AuthSession>({
@@ -66,6 +68,8 @@ export const AuthContext = React.createContext<AuthSession>({
 
 	uploadBanner: async () => {},
 	removeBanner: async () => {},
+
+	deleteAccount: async () => false,
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -180,6 +184,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 						data: {
 							name,
 							username,
+							visibility: "public",
 						},
 					},
 				})
@@ -411,6 +416,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 		});
 	}
 
+	async function deleteAccount() {
+		const supabase = createClient();
+		const { error } = await supabase.rpc("delete_user");
+
+		if (error) {
+			toast.error("Something went wrong!", {
+				description: error.message,
+			});
+			return false;
+		}
+
+		signOut(false);
+
+		toast.success("So long, partner!", {
+			description: "Your account has been permanently deleted.",
+		});
+
+		return true;
+	}
+
 	React.useEffect(() => {
 		const supabase = createClient();
 
@@ -474,6 +499,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 			removeAvatar,
 			uploadBanner,
 			removeBanner,
+
+			deleteAccount,
 		}),
 		[
 			user,
@@ -495,6 +522,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 			removeAvatar,
 			uploadBanner,
 			removeBanner,
+
+			deleteAccount,
 		]
 	);
 

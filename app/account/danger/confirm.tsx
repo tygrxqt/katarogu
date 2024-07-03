@@ -25,13 +25,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/components/auth/provider";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import Spinner from "@/components/spinner";
 
 export function DeleteAccountConfirm({
 	children,
 }: {
 	children: React.ReactNode;
 }) {
-	const { user } = useAuth();
+	const { user, deleteAccount } = useAuth();
 
 	const [open, setOpen] = React.useState(false);
 	const [username, setUsername] = React.useState("");
@@ -109,15 +110,25 @@ export function DeleteAccountConfirm({
 								</div>
 							</div>
 							<div className="flex w-full flex-row justify-between border-t bg-neutral-200 p-3 dark:bg-neutral-900">
-								<Button variant="outline" onClick={toggleOpen}>
+								<Button
+									variant="outline"
+									onClick={toggleOpen}
+									disabled={loading}
+								>
 									Cancel
 								</Button>
 								<Button
 									variant="destructive"
-									disabled={!enabled}
-									onClick={() => alert("Not Implemented!")}
+									disabled={!enabled || loading}
+									onClick={async () => {
+										setLoading(true);
+
+										await deleteAccount().finally(() => {
+											setLoading(false);
+										});
+									}}
 								>
-									Confirm Deletion
+									{loading ? <Spinner /> : "Confirm Deletion"}
 								</Button>
 							</div>
 						</DialogContent>
