@@ -22,10 +22,9 @@ import { Input } from "@/components/ui/input";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import React, { useState } from "react";
 import { useAuth } from "./provider";
-import Spinner from "../spinner";
+import Spinner from "@/components/spinner";
 import { Eye, EyeOff } from "lucide-react";
 import { Icons } from "../ui/icons";
-import pb from "@/lib/pocketbase";
 
 export default function AuthPopup() {
 	const [open, setOpen] = useState(false);
@@ -43,7 +42,7 @@ export default function AuthPopup() {
 
 	const [loading, setLoading] = React.useState(false);
 
-	const { logIn, register } = useAuth();
+	const { signIn, register, resetPassword, signInWithOAuth } = useAuth();
 
 	const reset = () => {
 		setName("");
@@ -58,10 +57,10 @@ export default function AuthPopup() {
 	const onSignIn = async () => {
 		setLoading(true);
 
-		await logIn(email, password).then((res) => {
-			if (res === true) {
-				setOpen(false);
+		await signIn(email, password).then((res) => {
+			if (res) {
 				reset();
+				setOpen(false);
 			} else {
 				setLoading(false);
 			}
@@ -69,17 +68,17 @@ export default function AuthPopup() {
 	};
 
 	const onOAuthSignIn = async (provider: "github" | "google" | "discord") => {
-		//
+		setLoading(true);
+
+		await signInWithOAuth(provider);
 	};
 
 	const onRegister = async () => {
-		setLoading(true);
-
-		await register(name, email, username, password, passwordConfirm).then(
+		await register(name, username, email, password, passwordConfirm).then(
 			(res) => {
-				if (res === true) {
-					setOpen(false);
+				if (res) {
 					reset();
+					setOpen(false);
 				} else {
 					setLoading(false);
 				}
@@ -88,7 +87,10 @@ export default function AuthPopup() {
 	};
 
 	const onReset = async () => {
-		//
+		await resetPassword(email).then(() => {
+			reset();
+			setOpen(false);
+		});
 	};
 
 	const changeMode = (mode: string) => {
@@ -187,6 +189,7 @@ export default function AuthPopup() {
 													type="button"
 													className="p-2"
 													onClick={togglePassword}
+													tabIndex={-1}
 												>
 													{showPassword ? (
 														<EyeOff size={22} />

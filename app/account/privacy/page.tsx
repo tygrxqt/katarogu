@@ -1,6 +1,6 @@
 "use client";
 
-import AccountCard from "@/components/account/card";
+import AccountField from "@/components/account/field";
 import { useAuth } from "@/components/auth/provider";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,39 +10,43 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import pb from "@/lib/pocketbase";
+import { createClient } from "@/lib/supabase/client";
 import { useState } from "react";
 import { toast } from "sonner";
 
 export default function AccountPrivacyPage() {
+	const supabase = createClient();
 	const { user } = useAuth();
 	const [visibility, setVisibility] = useState<string>(
-		user?.visibility ?? "public"
+		user?.user_metadata.visibility ?? "public"
 	);
 
 	const handleSave = (formData: FormData, message?: string) => {
-		toast.promise(pb.collection("users").update(user?.id, formData), {
-			loading: "Saving...",
-			success: (data) => {
-				return message ?? "Your changes have been saved.";
-			},
-			error: "Something went wrong. Your changes couldn't be saved",
-		});
+		toast.promise(
+			supabase.auth.updateUser({ data: { visibility: visibility } }),
+			{
+				loading: "Saving...",
+				success: (data) => {
+					return message ?? "Your changes have been saved.";
+				},
+				error: "Something went wrong. Your changes couldn't be saved",
+			}
+		);
 	};
 
 	return (
 		<>
 			{user && (
 				<div className="flex flex-col gap-4 pb-4 sm:gap-8">
-					<AccountCard
+					<AccountField
 						title="Profile Visibility"
 						description="You can choose to make your profile public, unlisted, or private."
-						footer={`Your profile is currently ${user.visibility}.`}
+						footer={`Your profile is currently ${user.user_metadata.visibility}.`}
 						action={
 							<Button
 								size="sm"
 								onClick={async () => {
-									if (visibility === user.visibility)
+									if (visibility === user.user_metadata.visibility)
 										return toast.error("No changes were made.", {
 											description: "Please make some changes before saving.",
 										});
@@ -70,27 +74,27 @@ export default function AccountPrivacyPage() {
 								<SelectItem
 									value="public"
 									className="data-[current=true]:font-bold"
-									data-current={user.visibility === "public"}
+									data-current={user.user_metadata.visibility === "public"}
 								>
 									Public
 								</SelectItem>
 								<SelectItem
 									value="unlisted"
 									className="data-[current=true]:font-bold"
-									data-current={user.visibility === "unlisted"}
+									data-current={user.user_metadata.visibility === "unlisted"}
 								>
 									Unlisted
 								</SelectItem>
 								<SelectItem
 									value="private"
 									className="data-[current=true]:font-bold"
-									data-current={user.visibility === "private"}
+									data-current={user.user_metadata.visibility === "private"}
 								>
 									Private
 								</SelectItem>
 							</SelectContent>
 						</Select>
-					</AccountCard>
+					</AccountField>
 				</div>
 			)}
 		</>

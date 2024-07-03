@@ -79,3 +79,17 @@
 .rdp-vhidden {
 	@apply hidden;
 }
+
+.light body {
+  --tile:#f5f5f5;
+}
+
+.dark body {
+  --tile: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tile: #171717;
+  }
+}

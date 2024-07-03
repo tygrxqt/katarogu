@@ -8,7 +8,6 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import ReactCrop, { Crop, centerCrop, makeAspectCrop } from "react-image-crop";
 import { useAuth } from "../auth/provider";
-import { randomUUID } from "crypto";
 import { toast } from "sonner";
 
 const MAX_FILE_SIZE = 12582912; // 12 MB
@@ -16,7 +15,7 @@ const MAX_FILE_SIZE = 12582912; // 12 MB
 export default function AvatarUpload(props: ButtonProps) {
 	const [open, setOpen] = React.useState(false);
 	const isDesktop = useMediaQuery("(min-width: 768px)");
-	const { user, uploadAvatar } = useAuth();
+	const { uploadAvatar } = useAuth();
 
 	const [src, setSrc] = React.useState("");
 	const [completedCrop, setCompletedCrop] = React.useState<Crop | null>(null);
@@ -108,7 +107,7 @@ export default function AvatarUpload(props: ButtonProps) {
 		}
 	}
 
-	function onSubmitCrop() {
+	async function onSubmitCrop() {
 		if (completedCrop) {
 			// create a canvas element to draw the cropped image
 			const canvas = document.createElement("canvas");
@@ -143,20 +142,10 @@ export default function AvatarUpload(props: ButtonProps) {
 					);
 				}
 
-				const base64Image = canvas.toDataURL("image/png"); // can be changed to jpeg/jpg etc
+				const base64Image = canvas.toDataURL(); // can be changed to jpeg/jpg etc
+				const base64 = base64Image.split("base64,")[1];
 
-				if (base64Image) {
-					const fileType = base64Image.split(";")[0].split(":")[1];
-
-					const buffer = Buffer.from(
-						base64Image.replace(/^data:image\/\w+;base64,/, ""),
-						"base64"
-					);
-					const file = new File([buffer], user?.username ?? randomUUID(), {
-						type: fileType,
-					});
-					uploadAvatar(file);
-				}
+				await uploadAvatar(base64);
 
 				onOpenChange();
 			}
@@ -238,7 +227,7 @@ export default function AvatarUpload(props: ButtonProps) {
 						<Button variant="outline" onClick={onOpenChange}>
 							Cancel
 						</Button>
-						<Button onClick={onSubmitCrop}>Save</Button>
+						<Button onClick={async () => onSubmitCrop()}>Save</Button>
 					</div>
 				</DrawerContent>
 			</Drawer>

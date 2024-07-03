@@ -1,6 +1,6 @@
 "use client";
 
-import AccountCard from "@/components/account/card";
+import AccountField from "@/components/account/field";
 import { useAuth } from "@/components/auth/provider";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -13,17 +13,27 @@ import AvatarRemove from "@/components/account/avatar-remove";
 import AvatarUpload from "@/components/account/avatar-upload";
 import BannerUpload from "@/components/account/banner-upload";
 import BannerRemove from "@/components/account/banner-remove";
-import pb from "@/lib/pocketbase";
+
 import { toast } from "sonner";
+import { createClient } from "@/lib/supabase/client";
 
 export default function AccountPage() {
+	const supabase = createClient();
 	const { user, avatar, banner } = useAuth();
 
-	const [name, setName] = useState(user?.name);
-	const [username, setUsername] = useState(user?.username);
+	const [name, setName] = useState(user?.user_metadata.name);
+	const [username, setUsername] = useState(user?.user_metadata.username);
 
-	const handleSave = (formData: FormData, message?: string) => {
-		toast.promise(pb.collection("users").update(user?.id, formData), {
+	const handleSave = (
+		data: {
+			email?: string;
+			phone?: string;
+			password?: string;
+			data?: { username?: string; name?: string };
+		},
+		message?: string
+	) => {
+		toast.promise(supabase.auth.updateUser(data), {
 			loading: "Saving...",
 			success: (data) => {
 				return message ?? "Your changes have been saved.";
@@ -48,9 +58,14 @@ export default function AccountPage() {
 								</div>
 								<div className="flex flex-row items-center gap-6 pr-4">
 									<Avatar className="h-16 w-16 sm:h-20 sm:w-20 md:h-28 md:w-28">
-										<AvatarImage src={avatar} alt={user.username} />
+										<AvatarImage
+											src={avatar}
+											alt={user.user_metadata.username}
+										/>
 										<AvatarFallback>
-											{(user.username ?? "A").slice(0, 1).toUpperCase()}
+											{(user.user_metadata.username ?? "A")
+												.slice(0, 1)
+												.toUpperCase()}
 										</AvatarFallback>
 									</Avatar>
 									<div className="my-2 flex flex-col gap-2">
@@ -101,7 +116,7 @@ export default function AccountPage() {
 								</span>
 							</div>
 						</div>
-						<AccountCard
+						<AccountField
 							title="Username"
 							description="This is your unique username that will be used to identify you publicly."
 							footer="Please use between 3 and 32 characters."
@@ -109,7 +124,7 @@ export default function AccountPage() {
 								<Button
 									size="sm"
 									onClick={async () => {
-										if (username === user.username)
+										if (username === user.user_metadata.username)
 											return toast.error("No changes were made.", {
 												description: "Please make some changes before saving.",
 											});
@@ -122,7 +137,10 @@ export default function AccountPage() {
 
 										const formData = new FormData();
 										formData.append("username", username);
-										handleSave(formData, "Your username has been updated.");
+										handleSave(
+											{ data: { username: username } },
+											"Your username has been updated."
+										);
 									}}
 								>
 									Save
@@ -130,13 +148,13 @@ export default function AccountPage() {
 							}
 						>
 							<Input
-								placeholder={user.username}
+								placeholder={user.user_metadata.username}
 								value={username}
 								onChange={(e) => setUsername(e.target.value)}
 								className=""
 							/>
-						</AccountCard>
-						<AccountCard
+						</AccountField>
+						<AccountField
 							title="Display Name"
 							description="Please enter your full name, or a display name you are comfortable with."
 							footer="Please use 32 characters at maximum."
@@ -144,7 +162,7 @@ export default function AccountPage() {
 								<Button
 									size="sm"
 									onClick={async () => {
-										if (name === user.name)
+										if (name === user.user_metadata.name)
 											return toast.error("No changes were made.", {
 												description: "Please make some changes before saving.",
 											});
@@ -155,9 +173,10 @@ export default function AccountPage() {
 													"Your name must be at least 32 characters long.",
 											});
 
-										const formData = new FormData();
-										formData.append("name", name);
-										handleSave(formData, "Your name has been updated.");
+										handleSave(
+											{ data: { name: name } },
+											"Your name has been updated."
+										);
 									}}
 								>
 									Save
@@ -165,12 +184,12 @@ export default function AccountPage() {
 							}
 						>
 							<Input
-								placeholder={user.name}
+								placeholder={user.user_metadata.name}
 								value={name}
 								onChange={(e) => setName(e.target.value)}
 								className=""
 							/>
-						</AccountCard>
+						</AccountField>
 					</div>
 				</>
 			)}

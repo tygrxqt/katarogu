@@ -1,17 +1,18 @@
 "use client";
 
 import { useAuth } from "@/components/auth/provider";
-import AccountCard from "@/components/account/card";
+import AccountField from "@/components/account/field";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/ui/icons";
-import { Suspense, useEffect, useState } from "react";
-import pb from "@/lib/pocketbase";
-import { toast } from "sonner";
+import { Suspense, useState } from "react";
 import Spinner from "@/components/spinner";
 import Alert from "@/components/alert";
+import { createClient } from "@/lib/supabase/client";
 
 export default function AccountPrivacyPage() {
-	const { user, oauth, refreshOAuth, unlinkOAuth } = useAuth();
+	const supabase = createClient();
+
+	const { user, oauth, unlinkOAuth, linkOAuth } = useAuth();
 	const [unlinkGithub, setUnlinkGithub] = useState(false);
 	const [unlinkGoogle, setUnlinkGoogle] = useState(false);
 	const [unlinkDiscord, setUnlinkDiscord] = useState(false);
@@ -20,7 +21,7 @@ export default function AccountPrivacyPage() {
 		<>
 			{user && (
 				<div className="flex flex-col gap-4 pb-4 sm:gap-8">
-					<AccountCard
+					<AccountField
 						title="OAuth Providers"
 						description="Connect your Katarogu account with a third-party service to enable additional features."
 						footer={`You can use OAuth to login to your account quickly and securely.`}
@@ -39,7 +40,7 @@ export default function AccountPrivacyPage() {
 									<Alert
 										title="Disconnect GitHub?"
 										description="Are you sure you want to disconnect your GitHub account?"
-										onSubmit={async () => await unlinkOAuth("github")}
+										onSubmit={async () => await unlinkOAuth(oauth.github!)}
 										onCancel={() => setUnlinkGithub(false)}
 										open={unlinkGithub}
 										setOpen={setUnlinkGithub}
@@ -51,15 +52,7 @@ export default function AccountPrivacyPage() {
 										className="w-fit"
 										variant="outline"
 										onClick={async () => {
-											await pb
-												.collection("users")
-												.authWithOAuth2({ provider: "github" })
-												.then(async (res) => {
-													await refreshOAuth();
-												})
-												.catch((err) => {
-													toast.error(err);
-												});
+											await linkOAuth("github");
 										}}
 									>
 										<Icons.Github className="w-4 h-4 mr-2" /> Connect with
@@ -80,7 +73,7 @@ export default function AccountPrivacyPage() {
 									<Alert
 										title="Disconnect Google?"
 										description="Are you sure you want to disconnect your Google account?"
-										onSubmit={async () => await unlinkOAuth("google")}
+										onSubmit={async () => await unlinkOAuth(oauth.google!)}
 										onCancel={() => setUnlinkGoogle(false)}
 										open={unlinkGoogle}
 										setOpen={setUnlinkGoogle}
@@ -92,15 +85,7 @@ export default function AccountPrivacyPage() {
 										className="w-fit"
 										variant="outline"
 										onClick={async () => {
-											await pb
-												.collection("users")
-												.authWithOAuth2({ provider: "google" })
-												.then(async (res) => {
-													await refreshOAuth();
-												})
-												.catch((err) => {
-													toast.error(err);
-												});
+											await linkOAuth("google");
 										}}
 									>
 										<Icons.Google className="w-4 h-4 mr-2" /> Connect with
@@ -122,7 +107,7 @@ export default function AccountPrivacyPage() {
 									<Alert
 										title="Disconnect Discord?"
 										description="Are you sure you want to disconnect your Discord account?"
-										onSubmit={async () => await unlinkOAuth("discord")}
+										onSubmit={async () => await unlinkOAuth(oauth.discord!)}
 										onCancel={() => setUnlinkDiscord(false)}
 										open={unlinkDiscord}
 										setOpen={setUnlinkDiscord}
@@ -134,15 +119,7 @@ export default function AccountPrivacyPage() {
 										className="w-fit"
 										variant="outline"
 										onClick={async () => {
-											await pb
-												.collection("users")
-												.authWithOAuth2({ provider: "discord" })
-												.then(async (res) => {
-													await refreshOAuth();
-												})
-												.catch((err) => {
-													toast.error(err);
-												});
+											await linkOAuth("discord");
 										}}
 									>
 										<Icons.Discord className="w-4 h-4 mr-2" /> Connect with
@@ -151,7 +128,7 @@ export default function AccountPrivacyPage() {
 								</>
 							)}
 						</div>
-					</AccountCard>
+					</AccountField>
 
 					{/* <AccountCard
 						title="Passkeys"

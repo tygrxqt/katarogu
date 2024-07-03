@@ -6,10 +6,9 @@ const nextConfig = {
 			{ hostname: "localhost" },
 			{ hostname: "api.dicebear.com" },
 			{ hostname: "images.unsplash.com" },
+			{ hostname: "uxjqxxvpklzjcrmrwuax.supabase.co" },
 			{ hostname: "db.katarogu.tygr.dev" },
 			{ hostname: "placehold.co" },
-			// Canary instance of the database
-			{ hostname: "db.canary.katarogu.tygr.dev" },
 		],
 	},
 	headers() {
@@ -19,6 +18,9 @@ const nextConfig = {
 				headers: securityHeaders,
 			},
 		];
+	},
+	async redirects() {
+		return [];
 	},
 	reactStrictMode: false,
 };

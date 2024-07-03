@@ -31,7 +31,7 @@ export function DeleteAccountConfirm({
 }: {
 	children: React.ReactNode;
 }) {
-	const { user, deleteAccount } = useAuth();
+	const { user } = useAuth();
 
 	const [open, setOpen] = React.useState(false);
 	const [username, setUsername] = React.useState("");
@@ -49,7 +49,10 @@ export function DeleteAccountConfirm({
 
 	React.useEffect(() => {
 		if (user) {
-			if (username === user.username && phrase === "delete my account") {
+			if (
+				username === user.user_metadata.username &&
+				phrase === "delete my account"
+			) {
 				setEnabled(true);
 			} else {
 				setEnabled(false);
@@ -87,7 +90,8 @@ export function DeleteAccountConfirm({
 							<div className="flex flex-col items-start gap-4 px-6 pb-6">
 								<div className="flex w-full flex-col gap-1">
 									<Label htmlFor="name" className="text-sm text-neutral-500">
-										Enter your username <b>{user.username}</b> to continue:
+										Enter your username <b>{user.user_metadata.username}</b> to
+										continue:
 									</Label>
 									<Input
 										value={username}
@@ -111,7 +115,7 @@ export function DeleteAccountConfirm({
 								<Button
 									variant="destructive"
 									disabled={!enabled}
-									onClick={() => deleteAccount()}
+									onClick={() => alert("Not Implemented!")}
 								>
 									Confirm Deletion
 								</Button>
@@ -146,7 +150,8 @@ export function DeleteAccountConfirm({
 							<div className="flex flex-col items-start gap-4">
 								<div className="flex w-full flex-col gap-1">
 									<Label className="text-sm text-neutral-500">
-										Enter your username <b>{user.username}</b> to continue:
+										Enter your username <b>{user.user_metadata.username}</b> to
+										continue:
 									</Label>
 									<Input
 										value={username}
@@ -170,7 +175,7 @@ export function DeleteAccountConfirm({
 							</Button>
 							<Button
 								variant="destructive"
-								onClick={() => deleteAccount()}
+								onClick={() => alert("Not Implemented")}
 								disabled={!enabled}
 							>
 								Delete Account

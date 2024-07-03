@@ -36,12 +36,12 @@ import {
 } from "@/components/ui/tooltip";
 import Alert from "../alert";
 
-export default function UserPopup() {
+export default function UserInfo() {
 	const [open, setOpen] = useState(false);
 	const [signOutOpen, setSignOutOpen] = useState(false);
 	const isDesktop = useMediaQuery("(min-width: 768px)");
 
-	const { user, logOut, avatar, banner } = useAuth();
+	const { user, signOut, avatar, banner } = useAuth();
 
 	function SignOutConfirmation() {
 		return (
@@ -49,7 +49,7 @@ export default function UserPopup() {
 				<Alert
 					title="Are you sure?"
 					description="You are about to sign out of your account. Any unsaved changes you may have made will be lost."
-					onSubmit={() => logOut()}
+					onSubmit={() => signOut()}
 					onCancel={() => setOpen(!open)}
 					open={signOutOpen}
 					setOpen={setSignOutOpen}
@@ -61,14 +61,14 @@ export default function UserPopup() {
 	if (isDesktop) {
 		return (
 			<>
-				{user && (
+				{user !== null && (
 					<>
 						<DropdownMenu open={open} onOpenChange={setOpen}>
 							<DropdownMenuTrigger asChild className="cursor-pointer">
 								<Avatar className="border border-black/10 dark:border dark:border-white/10">
 									<AvatarImage src={avatar} alt="Avatar" aria-label="Avatar" />
 									<AvatarFallback>
-										{(user.user_metadata.username ?? "T")
+										{(user.user_metadata.username ?? "A")
 											.slice(0, 1)
 											.toUpperCase()}
 									</AvatarFallback>
@@ -132,7 +132,7 @@ export default function UserPopup() {
 												)}
 											</span>
 											<span className="text-sm font-normal text-neutral-500">
-												({user.user_metadata.username})
+												@{user.user_metadata.username}
 											</span>
 										</div>
 										<div className="flex flex-row items-start">
@@ -183,7 +183,7 @@ export default function UserPopup() {
 								<Avatar className="border border-black/10 dark:border dark:border-white/10">
 									<AvatarImage src={avatar} alt="Avatar" aria-label="Avatar" />
 									<AvatarFallback>
-										{(user.user_metadata.username ?? "T")
+										{(user.user_metadata.username ?? "A")
 											.slice(0, 1)
 											.toUpperCase()}
 									</AvatarFallback>
@@ -217,7 +217,7 @@ export default function UserPopup() {
 											alt="Avatar"
 										/>
 										<AvatarFallback>
-											{(user.user_metadata.username ?? "T")
+											{(user.user_metadata.eusername ?? "A")
 												.slice(0, 1)
 												.toUpperCase()}
 										</AvatarFallback>

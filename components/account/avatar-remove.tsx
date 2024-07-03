@@ -24,7 +24,7 @@ import { useAuth } from "../auth/provider";
 import { ArrowRight } from "lucide-react";
 
 export default function AvatarRemove(props: ButtonProps) {
-	const { user, avatar, removeAvatar, isDefaultAvatar } = useAuth();
+	const { user, avatar, removeAvatar } = useAuth();
 	const [open, setOpen] = React.useState(false);
 	const isDesktop = useMediaQuery("(min-width: 768px)");
 
@@ -49,17 +49,17 @@ export default function AvatarRemove(props: ButtonProps) {
 					<div className="flex flex-row items-center justify-between px-6 pb-4">
 						<img
 							src={avatar}
-							className="h-32 w-32 rounded-full"
+							className="h-32 w-32 rounded-full border"
 							alt="Current Avatar"
 						/>
 						<ArrowRight className="mx-4 h-8 w-8 text-neutral-500" />
 						<img
-							src={`https://api.dicebear.com/7.x/lorelei-neutral/png?seed=${user?.username}&radius=50`}
-							className="h-32 w-32 rounded-full"
+							src={`https://api.dicebear.com/7.x/lorelei-neutral/png?seed=${user?.user_metadata.username}&radius=50`}
+							className="h-32 w-32 rounded-full border"
 							alt="New Avatar"
 						/>
 					</div>
-					<div className="flex flex-row items-center justify-between gap-4 border-t bg-neutral-900/50 p-4">
+					<div className="flex flex-row items-center justify-between gap-4 border-t bg-neutral-200/50 dark:bg-neutral-900/50 p-4">
 						<span className="text-sm text-neutral-600 dark:text-neutral-400">
 							This action is not reversible.
 						</span>
@@ -75,7 +75,7 @@ export default function AvatarRemove(props: ButtonProps) {
 	return (
 		<Drawer open={open} onOpenChange={setOpen}>
 			<DrawerTrigger asChild>
-				<Button {...props} disabled={isDefaultAvatar} />
+				<Button {...props} />
 			</DrawerTrigger>
 			<DrawerContent>
 				<DrawerHeader>
@@ -87,13 +87,13 @@ export default function AvatarRemove(props: ButtonProps) {
 				<div className="flex flex-row items-center justify-center p-6">
 					<img
 						src={avatar}
-						className="h-32 w-32 rounded-full"
+						className="h-32 w-32 rounded-full border"
 						alt="Current Avatar"
 					/>
 					<ArrowRight className="mx-4 h-8 w-8 text-neutral-500" />
 					<img
-						src={`https://api.dicebear.com/7.x/lorelei-neutral/png?seed=${user?.username}&radius=50`}
-						className="h-32 w-32 rounded-full"
+						src={`https://api.dicebear.com/7.x/lorelei-neutral/png?seed=${user?.user_metadata.username}&radius=50`}
+						className="h-32 w-32 rounded-full border"
 						alt="New Avatar"
 					/>
 				</div>

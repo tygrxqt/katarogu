@@ -25,7 +25,7 @@ import { ArrowDown } from "lucide-react";
 import { AspectRatio } from "@radix-ui/react-aspect-ratio";
 
 export default function BannerRemove(props: ButtonProps) {
-	const { banner, removeBanner, isDefaultBanner } = useAuth();
+	const { banner, removeBanner } = useAuth();
 	const [open, setOpen] = React.useState(false);
 	const isDesktop = useMediaQuery("(min-width: 768px)");
 
@@ -38,7 +38,7 @@ export default function BannerRemove(props: ButtonProps) {
 		return (
 			<Dialog open={open} onOpenChange={setOpen}>
 				<DialogTrigger asChild>
-					<Button {...props} disabled={isDefaultBanner} />
+					<Button {...props} />
 				</DialogTrigger>
 				<DialogContent className="p-0 sm:max-w-[425px]">
 					<DialogHeader className="p-6">
@@ -70,7 +70,7 @@ export default function BannerRemove(props: ButtonProps) {
 							/>
 						</AspectRatio>
 					</div>
-					<div className="flex flex-row items-center justify-between gap-4 border-t bg-neutral-900/50 p-4">
+					<div className="flex flex-row items-center justify-between gap-4 border-t bg-neutral-200/50 dark:bg-neutral-900/50 p-4">
 						<span className="text-sm text-neutral-600 dark:text-neutral-400">
 							This action is not reversible.
 						</span>

@@ -6,13 +6,13 @@ import { Toaster } from "sonner";
 
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme/provider";
-import { AuthProvider } from "@/components/auth/provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 import Nav from "@/components/nav";
 
 import "react-image-crop/dist/ReactCrop.css";
 import "./globals.css";
+import { AuthProvider } from "@/components/auth/provider";
 
 const inter = Inter({
 	subsets: ["latin"],
@@ -46,11 +46,13 @@ export default function RootLayout({
 						sora.variable
 					)}
 				>
-					<Script
-						async
-						src="https://analytics.tygr.dev/script.js"
-						data-website-id="b77fbcb1-45fe-44b5-b08d-7f6b5d775451"
-					/>
+					{process.env.NODE_ENV === "production" && (
+						<Script
+							async
+							src="https://analytics.tygr.dev/script.js"
+							data-website-id="b77fbcb1-45fe-44b5-b08d-7f6b5d775451"
+						/>
+					)}
 					<ThemeProvider
 						attribute="class"
 						defaultTheme="system"
@@ -62,13 +64,13 @@ export default function RootLayout({
 							className="min-h-screen bg-neutral-50 antialiased dark:bg-neutral-950"
 						>
 							<div className="container">
-								<TooltipProvider>
-									<Toaster />
-									<AuthProvider>
+								<AuthProvider>
+									<TooltipProvider>
+										<Toaster />
 										<Nav />
 										{children}
-									</AuthProvider>
-								</TooltipProvider>
+									</TooltipProvider>
+								</AuthProvider>
 							</div>
 						</main>
 					</ThemeProvider>

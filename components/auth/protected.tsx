@@ -6,14 +6,15 @@ import { useAuth } from "@/components/auth/provider";
 import React from "react";
 import { Eye, Mail, EyeOff } from "lucide-react";
 import { toast } from "sonner";
-import pb from "@/lib/pocketbase";
 import { Icons } from "../ui/icons";
+import { createClient } from "@/lib/supabase/client";
 
 export default function ProtectedPage({
 	children,
 }: {
 	children: React.ReactNode;
 }) {
+	const supabase = createClient();
 	const { user, signIn, signInWithOAuth, register, resetPassword } = useAuth();
 
 	const [mode, setMode] = React.useState<"signin" | "register" | "reset">(
@@ -84,7 +85,7 @@ export default function ProtectedPage({
 		<>
 			{user ? (
 				<>
-					{user.verified ? (
+					{typeof user.email_confirmed_at !== "undefined" ? (
 						<>{children}</>
 					) : (
 						<>
@@ -103,7 +104,10 @@ export default function ProtectedPage({
 									<Button
 										onClick={() => {
 											toast.promise(
-												pb.collection("users").requestVerification(user.email),
+												supabase.auth.resend({
+													email: user.email as string,
+													type: "signup",
+												}),
 												{
 													loading: "Sending verification email...",
 													success: "Verification email sent!",
