@@ -13,7 +13,7 @@ const AnimatedGridBackgroundSection: React.FC<{
 				"w-full min-h-screen-no-nav relative overflow-hidden flex items-center justify-center"
 			}
 		>
-			<div className={"w-fit h-fit relative z-[999]"}>{children}</div>
+			<div className={"w-fit h-fit relative z-[40]"}>{children}</div>
 			<div className={"absolute top-0 left-0 h-full w-full"}>
 				<Tiles rows={30} cols={25} />
 			</div>
