@@ -141,7 +141,12 @@ export function DeleteAccountConfirm({
 	return (
 		<>
 			{user && (
-				<Drawer open={open} onOpenChange={setOpen} onClose={toggleOpen}>
+				<Drawer
+					open={open}
+					onOpenChange={setOpen}
+					onClose={toggleOpen}
+					dismissible={!loading}
+				>
 					<DrawerTrigger asChild>{children}</DrawerTrigger>
 					<DrawerContent>
 						<DrawerHeader className="p-6 text-left">
@@ -181,13 +186,19 @@ export function DeleteAccountConfirm({
 							</div>
 						</DrawerHeader>
 						<DrawerFooter className="flex w-full flex-row justify-between border-t bg-neutral-200 p-3 dark:bg-neutral-900">
-							<Button variant="outline" onClick={toggleOpen}>
+							<Button variant="outline" onClick={toggleOpen} disabled={loading}>
 								Cancel
 							</Button>
 							<Button
 								variant="destructive"
-								onClick={() => alert("Not Implemented")}
-								disabled={!enabled}
+								onClick={async () => {
+									setLoading(true);
+
+									await deleteAccount().finally(() => {
+										setLoading(false);
+									});
+								}}
+								disabled={!enabled || loading}
 							>
 								Delete Account
 							</Button>
