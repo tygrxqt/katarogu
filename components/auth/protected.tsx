@@ -85,7 +85,7 @@ export default function ProtectedPage({
 		<>
 			{user ? (
 				<>
-					{typeof user.email_confirmed_at !== "undefined" ? (
+					{user.user_metadata.email_verified ? (
 						<>{children}</>
 					) : (
 						<>
