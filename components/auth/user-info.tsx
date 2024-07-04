@@ -79,7 +79,7 @@ export default function UserInfo() {
 								side="bottom"
 							>
 								<AspectRatio ratio={3 / 1}>
-									{typeof user.email_confirmed_at === "undefined" && (
+									{!user.user_metadata.email_verified && (
 										<div className="absolute top-0 z-[51] h-[32px] w-full bg-[#EBCB8B] text-black dark:text-black">
 											<div className="flex max-h-[32px] flex-row items-center justify-start gap-2 p-2">
 												<AlertTriangle className="h-4 w-4" />
@@ -191,7 +191,7 @@ export default function UserInfo() {
 							</DrawerTrigger>
 							<DrawerContent className="border-0 p-0" handle={false}>
 								<AspectRatio ratio={2 / 1}>
-									{typeof user.email_confirmed_at === "undefined" && (
+									{user.user_metadata.email_verified && (
 										<div className="absolute top-0 z-[51] h-[32px] w-full bg-[#EBCB8B] text-black dark:text-black">
 											<div className="flex max-h-[32px] flex-row items-center justify-start gap-2 p-2">
 												<AlertTriangle className="h-4 w-4" />
@@ -217,7 +217,7 @@ export default function UserInfo() {
 											alt="Avatar"
 										/>
 										<AvatarFallback>
-											{(user.user_metadata.eusername ?? "A")
+											{(user.user_metadata.username ?? "A")
 												.slice(0, 1)
 												.toUpperCase()}
 										</AvatarFallback>
