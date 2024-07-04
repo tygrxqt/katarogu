@@ -156,7 +156,7 @@ export default function ProtectedPage({
 													variant="outline"
 													onClick={async () => await signInWithOAuth("github")}
 												>
-													<Icons.Github className="w-4 h-4 mr-2" />
+													<Icons.Github className="w-4 h-4 xs:mr-2" />
 													<span className="hidden xs:block">GitHub</span>
 												</Button>
 
@@ -165,7 +165,7 @@ export default function ProtectedPage({
 													variant="outline"
 													onClick={async () => await signInWithOAuth("google")}
 												>
-													<Icons.Google className="w-4 h-4 mr-2" />
+													<Icons.Google className="w-4 h-4 xs:mr-2" />
 													<span className="hidden xs:block">Google</span>
 												</Button>
 
@@ -174,7 +174,7 @@ export default function ProtectedPage({
 													variant="outline"
 													onClick={async () => await signInWithOAuth("discord")}
 												>
-													<Icons.Discord className="w-4 h-4 mr-2" />
+													<Icons.Discord className="w-4 h-4 xs:mr-2" />
 													<span className="hidden xs:block">Discord</span>
 												</Button>
 											</div>
