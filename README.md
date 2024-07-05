@@ -5,8 +5,7 @@
 Katarogu is a free, open-source and community driven manga and anime tracking service built as an open and modern alternative to existing services like [MAL](https://myanimelist.net/about.php) and [MyAniList](https://anilist.co/).
 
 > [!WARNING]  
-> Katarogu is currently in alpha stages of development, breaking changes, bugs and missing features are to be expected.  
-> You can keep track of the progress over at our [Trello board](https://trello.com/b/lV6bhodT/katarogu).
+> Katarogu is currently in alpha stages of development, breaking changes, bugs and missing features are to be expected.
 
 # Tech stack
 
@@ -17,16 +16,6 @@ Katarogu is a free, open-source and community driven manga and anime tracking se
 - Database: [PocketBase](https://pocketbase.io/)
 
 # Running locally
-
-### Database Setup
-
-1. To get started, download the latest version of [PocketBase](https://pocketbase.io/docs/) for your system.
-2. You will also need to download the [schema](https://raw.githubusercontent.com/tygerxqt/katarogu/canary/public/schema.json).
-3. Extract the `.zip` file and run `./pocketbase serve` to start the database.
-4. Open your prefered web browser and navigate to `localhost:8090/_`.
-5. Once you've created your admin account and have logged in, head to `Settings > Import collections`.
-6. From here, you can either copy and paste the schema into to the text input or upload the .json file.
-7. Confirm the changes.
 
 ### App Setup
 
