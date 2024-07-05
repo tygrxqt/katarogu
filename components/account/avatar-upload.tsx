@@ -22,6 +22,7 @@ export default function AvatarUpload(props: ButtonProps) {
 
 	const imageInputRef = React.useRef<HTMLInputElement>(null);
 	const imageRef = React.useRef<HTMLImageElement>(null);
+	const [imageType, setImageType] = React.useState("");
 
 	const [crop, setCrop] = React.useState<Crop>({
 		unit: "%",
@@ -85,6 +86,7 @@ export default function AvatarUpload(props: ButtonProps) {
 
 			const image = new Image();
 			const type = e.target.files[0].type;
+			setImageType(type);
 			image.src = URL.createObjectURL(e.target.files[0]);
 			image.onload = () => {
 				if (image.width < 256 || image.height < 256) {
@@ -142,10 +144,10 @@ export default function AvatarUpload(props: ButtonProps) {
 					);
 				}
 
-				const base64Image = canvas.toDataURL(); // can be changed to jpeg/jpg etc
+				const base64Image = canvas.toDataURL(imageType ?? "image/png"); // can be changed to jpeg/jpg etc
 				const base64 = base64Image.split("base64,")[1];
 
-				await uploadAvatar(base64);
+				await uploadAvatar(base64, imageType ?? "image/png");
 
 				onOpenChange();
 			}
@@ -186,7 +188,7 @@ export default function AvatarUpload(props: ButtonProps) {
 							<Button variant="outline" onClick={onOpenChange}>
 								Cancel
 							</Button>
-							<Button onClick={onSubmitCrop}>Save</Button>
+							<Button onClick={async () => await onSubmitCrop()}>Save</Button>
 						</div>
 					</DialogContent>
 				</Dialog>
@@ -227,7 +229,7 @@ export default function AvatarUpload(props: ButtonProps) {
 						<Button variant="outline" onClick={onOpenChange}>
 							Cancel
 						</Button>
-						<Button onClick={async () => onSubmitCrop()}>Save</Button>
+						<Button onClick={async () => await onSubmitCrop()}>Save</Button>
 					</div>
 				</DrawerContent>
 			</Drawer>

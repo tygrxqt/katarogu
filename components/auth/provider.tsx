@@ -5,6 +5,7 @@ import { Provider, User, UserIdentity } from "@supabase/supabase-js";
 import React from "react";
 import { toast } from "sonner";
 import { decode } from "base64-arraybuffer";
+import { v4 } from "uuid";
 
 export interface AuthSession {
 	user: User | null;
@@ -33,10 +34,10 @@ export interface AuthSession {
 	unlinkOAuth: (provider: UserIdentity) => Promise<void>;
 	refreshOAuth: () => Promise<void>;
 
-	uploadAvatar: (base64: string) => Promise<void>;
+	uploadAvatar: (base64: string, fileType?: string) => Promise<void>;
 	removeAvatar: () => Promise<void>;
 
-	uploadBanner: (base64: string) => Promise<void>;
+	uploadBanner: (base64: string, fileType?: string) => Promise<void>;
 	removeBanner: () => Promise<void>;
 
 	deleteAccount: () => Promise<boolean>;
@@ -303,19 +304,36 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 		);
 	}
 
-	async function uploadAvatar(base64: string) {
+	async function uploadAvatar(base64: string, imageType?: string) {
 		const supabase = createClient();
+
+		// delete old avatar
+		if (typeof user?.user_metadata.avatar !== "undefined") {
+			await supabase.storage
+				.from("profiles")
+				.remove(user?.user_metadata.avatar)
+				.catch((err) => {
+					toast.error("Failed to remove old avatar", {
+						description: err,
+					});
+					return;
+				});
+		}
+
+		const randomID = v4();
 
 		toast.promise(
 			supabase.storage
 				.from("profiles")
-				.upload(`${user?.id}/avatar.png`, decode(base64), {
-					contentType: "image/png",
-					upsert: true,
+				.upload(`${user?.id}/${randomID}`, decode(base64), {
+					contentType: imageType,
 				}),
 			{
 				loading: "Uploading...",
 				success: (data) => {
+					setAvatar(
+						`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/profiles/${user?.id}/${randomID}`
+					);
 					return "Successfully uploaded avatar.";
 				},
 				error: (err) => {
@@ -324,25 +342,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 			}
 		);
 
-		const url = supabase.storage
-			.from("profiles")
-			.getPublicUrl(`${user?.id}/avatar.png`);
-		setAvatar(url.data.publicUrl);
-
-		await supabase.auth.updateUser({ data: { avatar: url.data.publicUrl } });
+		await supabase.auth.updateUser({
+			data: {
+				avatar: `${user?.id}/${randomID}`,
+			},
+		});
 	}
 
 	async function removeAvatar() {
 		const supabase = createClient();
+
 		toast.promise(
-			supabase.storage.from("profiles").remove([`${user?.id}/avatar.png`]),
+			supabase.storage
+				.from("profiles")
+				.remove([`${user?.user_metadata.avatar}`]),
 			{
 				loading: "Removing...",
-				success: (data) => {
+				success: () => {
 					setAvatar(
-						`https://api.dicebear.com/7.x/lorelei-neutral/png?seed=${
-							user?.user_metadata.username ?? user?.id
-						}&radius=50`
+						`https://api.dicebear.com/7.x/lorelei-neutral/png?seed=${user?.user_metadata.username}&radius=50`
 					);
 					return "Successfully removed avatar.";
 				},
@@ -354,26 +372,40 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
 		await supabase.auth.updateUser({
 			data: {
-				avatar: `https://api.dicebear.com/7.x/lorelei-neutral/png?seed=${
-					user?.user_metadata.username ?? user?.id
-				}&radius=50`,
+				avatar: null,
 			},
 		});
 	}
 
-	async function uploadBanner(base64: string) {
+	async function uploadBanner(base64: string, fileType?: string) {
 		const supabase = createClient();
+
+		if (typeof user?.user_metadata.banner !== "undefined") {
+			await supabase.storage
+				.from("profiles")
+				.remove(user?.user_metadata.banner)
+				.catch((err) => {
+					toast.error("Failed to remove old banner", {
+						description: err,
+					});
+					return;
+				});
+		}
+
+		const randomID = v4();
 
 		toast.promise(
 			supabase.storage
 				.from("profiles")
-				.upload(`${user?.id}/banner.png`, decode(base64), {
-					contentType: "image/png",
-					upsert: true,
+				.upload(`${user?.id}/${randomID}`, decode(base64), {
+					contentType: fileType ?? "image/png",
 				}),
 			{
 				loading: "Uploading...",
 				success: (data) => {
+					setBanner(
+						`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/profiles/${user?.id}/${randomID}`
+					);
 					return "Successfully uploaded banner.";
 				},
 				error: (err) => {
@@ -382,18 +414,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 			}
 		);
 
-		const url = supabase.storage
-			.from("profiles")
-			.getPublicUrl(`${user?.id}/banner.png`);
-		setBanner(url.data.publicUrl);
-
-		await supabase.auth.updateUser({ data: { banner: url.data.publicUrl } });
+		await supabase.auth.updateUser({
+			data: { banner: `${user?.id}/${randomID}` },
+		});
 	}
 
 	async function removeBanner() {
 		const supabase = createClient();
 		toast.promise(
-			supabase.storage.from("profiles").remove([`${user?.id}/banner.png`]),
+			supabase.storage
+				.from("profiles")
+				.remove([`${user?.user_metadata.banner}`]),
 			{
 				loading: "Removing...",
 				success: (data) => {
@@ -410,8 +441,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
 		await supabase.auth.updateUser({
 			data: {
-				banner:
-					"https://images.unsplash.com/photo-1636955816868-fcb881e57954?q=50",
+				banner: null,
 			},
 		});
 	}
@@ -440,40 +470,76 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 		const supabase = createClient();
 
 		supabase.auth.onAuthStateChange((event, session) => {
-			supabase.auth
-				.getUser()
-				.then((data) => {
-					const user = data.data.user;
-					setUser(user);
-					setAvatar(
-						user?.user_metadata.avatar
-							? user.user_metadata.avatar
-							: `https://api.dicebear.com/7.x/lorelei-neutral/png?seed=${user?.user_metadata.username}&radius=50`
-					);
-					setBanner(
-						user?.user_metadata.banner
-							? user.user_metadata.banner
-							: "https://images.unsplash.com/photo-1636955816868-fcb881e57954?q=50"
-					);
-					setMounted(true);
-					setOauth({
-						github:
-							data.data.user?.identities?.find(
-								(provider) => provider.provider === "github"
-							) ?? null,
-						google:
-							data.data.user?.identities?.find(
-								(provider) => provider.provider === "google"
-							) ?? null,
-						discord:
-							data.data.user?.identities?.find(
-								(provider) => provider.provider === "discord"
-							) ?? null,
+			if (!session) {
+				setMounted(true);
+			}
+
+			if (event === "SIGNED_IN") {
+				supabase.auth
+					.getUser()
+					.then((data) => {
+						const user = data.data.user;
+						if (!user) return;
+
+						setUser(user);
+						setAvatar(
+							typeof user.user_metadata.avatar === "undefined"
+								? `https://api.dicebear.com/7.x/lorelei-neutral/png?seed=${user?.user_metadata.username}&radius=50`
+								: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/profiles/` +
+										user.user_metadata.avatar
+						);
+						setBanner(
+							typeof user.user_metadata.banner === "undefined"
+								? "https://images.unsplash.com/photo-1636955816868-fcb881e57954?q=50"
+								: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/profiles/` +
+										user.user_metadata.banner
+						);
+						setOauth({
+							github:
+								data.data.user?.identities?.find(
+									(provider) => provider.provider === "github"
+								) ?? null,
+							google:
+								data.data.user?.identities?.find(
+									(provider) => provider.provider === "google"
+								) ?? null,
+							discord:
+								data.data.user?.identities?.find(
+									(provider) => provider.provider === "discord"
+								) ?? null,
+						});
+
+						setMounted(true);
+					})
+					.catch((err) => {
+						console.error(err);
 					});
-				})
-				.catch((err) => {
-					console.error(err);
+			}
+
+			if (event === "USER_UPDATED") {
+				supabase.auth
+					.getUser()
+					.then((data) => {
+						const user = data.data.user;
+						if (!user) return;
+
+						setUser(user);
+					})
+					.catch((err) => {
+						console.error(err);
+					});
+			}
+
+			if (event === "SIGNED_OUT") {
+				setUser(null);
+				setAvatar("");
+				setBanner("");
+				setOauth({
+					discord: null,
+					github: null,
+					google: null,
 				});
+			}
 		});
 	}, []);
 

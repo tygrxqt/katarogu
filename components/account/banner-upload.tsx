@@ -138,10 +138,9 @@ export default function BannerUpload(props: ButtonProps) {
 				const base64Image = canvas.toDataURL(); // can be changed to jpeg/jpg etc
 
 				const fileType = base64Image.split(";")[0].split(":")[1];
-
 				const base64 = base64Image.split("base64,")[1];
 
-				await uploadBanner(base64);
+				await uploadBanner(base64, fileType);
 
 				onOpenChange();
 			}
@@ -221,7 +220,7 @@ export default function BannerUpload(props: ButtonProps) {
 						<Button variant="outline" onClick={onOpenChange}>
 							Cancel
 						</Button>
-						<Button onClick={onSubmitCrop}>Save</Button>
+						<Button onClick={async () => await onSubmitCrop()}>Save</Button>
 					</div>
 				</DrawerContent>
 			</Drawer>

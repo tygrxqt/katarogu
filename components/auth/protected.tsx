@@ -84,47 +84,7 @@ export default function ProtectedPage({
 	return (
 		<>
 			{user ? (
-				<>
-					{user.user_metadata.email_verified ? (
-						<>{children}</>
-					) : (
-						<>
-							{/* If user is not verified */}
-							<div className="absolute left-1/2 top-1/2 w-3/4 -translate-x-1/2 -translate-y-1/2 sm:w-3/4">
-								<div className="flex flex-col items-center justify-center gap-6 text-center">
-									<div className="flex w-full flex-col items-center justify-center gap-2">
-										<h1 className="text-center font-display text-3xl font-bold sm:text-4xl">
-											Verification required
-										</h1>
-										<p className="text-sm text-neutral-500 sm:text-base">
-											To continue, please check your email for a verification
-											link.
-										</p>
-									</div>
-									<Button
-										onClick={() => {
-											toast.promise(
-												supabase.auth.resend({
-													email: user.email as string,
-													type: "signup",
-												}),
-												{
-													loading: "Sending verification email...",
-													success: "Verification email sent!",
-													error: "Failed to send verification email.",
-												}
-											);
-										}}
-										className="flex flex-row items-center"
-									>
-										<Mail className="mr-2 h-4 w-4" />
-										Resend verification email
-									</Button>
-								</div>
-							</div>
-						</>
-					)}
-				</>
+				<>{children}</>
 			) : (
 				<>
 					{/* If not authenticated */}
